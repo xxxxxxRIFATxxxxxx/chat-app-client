@@ -38,11 +38,25 @@ export const conversationsApi = apiSlice.injectEndpoints({
                             );
 
                             if (conversation?.id) {
-                                conversation.message = data?.data?.message;
-                                conversation.timestamp = data?.data?.timestamp;
+                                const draftConversation = draft.data.find(
+                                    (c) => c.id == data?.data?.id
+                                );
+    
+                                const newDraft = draft.data.filter(
+                                    (c) => c.id != data?.data?.id
+                                );
+    
+                                const newDraftConversation = {
+                                    ...draftConversation,
+                                    message: data.data.message,
+                                    timestamp: data.data.timestamp,
+                                };
+    
+                                draft.data = [newDraftConversation, ...newDraft];
                             } else {
-                                // do nothing
-                            }
+                                const newDraft = [data.data, ...draft.data];
+                                draft.data = newDraft;
+                            };
                         });
                     });
                 } catch (err) {}
@@ -94,16 +108,16 @@ export const conversationsApi = apiSlice.injectEndpoints({
             }),
             async onQueryStarted(arg, { queryFulfilled, dispatch }) {
                 // optimistic cache update start
-                const pathResult = dispatch(
-                    apiSlice.util.updateQueryData(
-                        "getConversations",
-                        arg.sender,
-                        (draft) => {
-                            const newDraft = [arg.data, ...draft.data];
-                            draft.data = newDraft;
-                        }
-                    )
-                );
+                // const pathResult = dispatch(
+                //     apiSlice.util.updateQueryData(
+                //         "getConversations",
+                //         arg.sender,
+                //         (draft) => {
+                //             const newDraft = [arg.data, ...draft.data];
+                //             draft.data = newDraft;
+                //         }
+                //     )
+                // );
                 // optimistic cache update end
 
                 try {
@@ -130,7 +144,7 @@ export const conversationsApi = apiSlice.injectEndpoints({
                     }
                     
                 } catch (error) {
-                    pathResult.undo();
+                    // pathResult.undo();
                 };
             },
         }),
@@ -143,29 +157,29 @@ export const conversationsApi = apiSlice.injectEndpoints({
             }),
             async onQueryStarted(arg, { queryFulfilled, dispatch }) {
                 // optimistic cache update start
-                const pathResult = dispatch(
-                    apiSlice.util.updateQueryData(
-                        "getConversations",
-                        arg.sender,
-                        (draft) => {
-                            const draftConversation = draft.data.find(
-                                (c) => c.id == arg.id
-                            );
+                // const pathResult = dispatch(
+                //     apiSlice.util.updateQueryData(
+                //         "getConversations",
+                //         arg.sender,
+                //         (draft) => {
+                //             const draftConversation = draft.data.find(
+                //                 (c) => c.id == arg.id
+                //             );
 
-                            const newDraft = draft.data.filter(
-                                (c) => c.id != arg.id
-                            );
+                //             const newDraft = draft.data.filter(
+                //                 (c) => c.id != arg.id
+                //             );
 
-                            const newDraftConversation = {
-                                ...draftConversation,
-                                message: arg.data.message,
-                                timestamp: arg.data.timestamp,
-                            };
+                //             const newDraftConversation = {
+                //                 ...draftConversation,
+                //                 message: arg.data.message,
+                //                 timestamp: arg.data.timestamp,
+                //             };
 
-                            draft.data = [newDraftConversation, ...newDraft];
-                        }
-                    )
-                );
+                //             draft.data = [newDraftConversation, ...newDraft];
+                //         }
+                //     )
+                // );
                 // optimistic cache update end
 
                 try {
@@ -191,19 +205,19 @@ export const conversationsApi = apiSlice.injectEndpoints({
                         ).unwrap();
 
                         // update messages cache pessimistically start
-                        dispatch(
-                            apiSlice.util.updateQueryData(
-                                "getMessages",
-                                res.conversationId.toString(),
-                                (draft) => {
-                                    draft.push(res);
-                                }
-                            )
-                        );
+                        // dispatch(
+                        //     apiSlice.util.updateQueryData(
+                        //         "getMessages",
+                        //         res.conversationId.toString(),
+                        //         (draft) => {
+                        //             draft.push(res);
+                        //         }
+                        //     )
+                        // );
                         // update messages cache pessimistically end
                     }
                 } catch (err) {
-                    pathResult.undo();
+                    // pathResult.undo();
                 }
             },
         }),
